@@ -1,0 +1,9 @@
+**/target/
+.idea
+*.iml
+*.class
+*Test.java
+**/test/
+
+# 开发环境敏感配置（含阿里云密钥），不提交到 git
+sky-server/src/main/resources/application-dev.yml
