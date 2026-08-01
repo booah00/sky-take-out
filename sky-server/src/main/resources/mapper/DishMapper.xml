@@ -9,4 +9,22 @@
         values (#{name}, #{categoryId}, #{price}, #{image}, #{description}, #{status}, #{createTime}, #{updateTime},
                 #{createUser}, #{updateUser})
     </insert>
+    <select id="pageQuery" resultType="com.sky.vo.DishVO">
+        select d.*, c.name category_name
+        from dish d
+        join category c on d.category_id = c.id
+        <where>
+            <if test="name != null">
+                <!-- 可以直接写=，此处是为了规范（concat是字符串连接） -->
+                and d.name like concat('%',#{name},'%')
+            </if>
+            <if test="categoryId != null">
+                and d.category_id = #{categoryId}
+            </if>
+            <if test="status != null">
+                and d.status = #{status}
+            </if>
+        </where>
+        order by d.create_time desc
+    </select>
 </mapper>
