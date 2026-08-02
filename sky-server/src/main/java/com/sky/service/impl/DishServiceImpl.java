@@ -2,13 +2,17 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.constant.MessageConstant;
+import com.sky.constant.StatusConstant;
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.entity.DishFlavor;
+import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.DishFlavorMapper;
 import com.sky.mapper.DishMapper;
 import com.sky.mapper.EmployeeMapper;
+import com.sky.mapper.SetmealDishMapper;
 import com.sky.result.PageResult;
 import com.sky.service.DishService;
 import com.sky.vo.DishVO;
@@ -29,11 +33,13 @@ public class DishServiceImpl implements DishService {
 
     @Autowired
     private DishFlavorMapper dishFlavorMapper;
+
     @Autowired
-    private EmployeeMapper employeeMapper;
+    private SetmealDishMapper setMealDishMapper;
 
     /**
      * 新增菜品和对应口味
+     *
      * @param dishDTO
      */
     @Override
@@ -41,7 +47,7 @@ public class DishServiceImpl implements DishService {
     public void saveWithFlavor(DishDTO dishDTO) {
 
         Dish dish = new Dish();
-        BeanUtils.copyProperties(dishDTO,dish);
+        BeanUtils.copyProperties(dishDTO, dish);
 
         //向菜品表插入一条数据
         dishMapper.insert(dish);
@@ -51,7 +57,7 @@ public class DishServiceImpl implements DishService {
         for (DishFlavor flavor : flavors) {
             flavor.setDishId(id);
         }
-        if(flavors != null && flavors.size() > 0){
+        if (flavors != null && flavors.size() > 0) {
             //向口味表插入多条数据
             dishFlavorMapper.insertBatch(flavors);
         }
@@ -59,6 +65,7 @@ public class DishServiceImpl implements DishService {
 
     /**
      * 菜品分页查询
+     *
      * @param dishPageQueryDTO
      * @return
      */
@@ -67,5 +74,29 @@ public class DishServiceImpl implements DishService {
         PageHelper.startPage(dishPageQueryDTO.getPage(), dishPageQueryDTO.getPageSize());
         Page<DishVO> page = dishMapper.pageQuery(dishPageQueryDTO);
         return new PageResult(page.getTotal(), page.getResult());
+    }
+
+    /**
+     * 菜品批量删除
+     *
+     * @param ids
+     */
+    @Override
+    public void deleteBatch(List<Long> ids) {
+        //判断当前菜品能否删除--起售中菜品
+        for (Long id : ids) {
+            Dish dish = dishMapper.getById(id);
+            if (dish.getStatus() == StatusConstant.ENABLE)
+                throw new DeletionNotAllowedException(MessageConstant.DISH_ON_SALE);
+        }
+        //判断当前菜品能否删除--被套餐关联
+        List<Long> setmealIdByDishIds = setMealDishMapper.getSetmealIdsByDishIds(ids);
+        if (setmealIdByDishIds != null && setmealIdByDishIds.size() > 0)
+            throw new DeletionNotAllowedException(MessageConstant.CATEGORY_BE_RELATED_BY_DISH);
+
+        //删除菜品
+        dishMapper.deleteByIds(ids);
+        //删除相关口味
+        dishFlavorMapper.deleteByDishIds(ids);
     }
 }
