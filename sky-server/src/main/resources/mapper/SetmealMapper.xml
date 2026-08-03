@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.SetmealMapper">
+
+
+    <!-- TODO 修改套餐 -->
+    <!--
+    <update id="update">
+    </update>
+    -->
+
+    <!-- TODO 批量删除套餐 -->
+    <!--
+    <delete id="deleteByIds">
+    </delete>
+    -->
+
+    <!-- 套餐分页查询（联表category获取categoryName） -->
+    <select id="pageQuery" resultType="com.sky.vo.SetmealVO">
+        select s.*, c.name category_name
+        from setmeal s
+        join category c on s.category_id = c.id
+        <where>
+            <if test="name != null">
+                and s.name like concat('%',#{name},'%')
+            </if>
+            <if test="categoryId != null">
+                and s.category_id = #{categoryId}
+            </if>
+            <if test="status != null">
+                and s.status = #{status}
+            </if>
+        </where>
+        order by s.create_time desc
+    </select>
+
+</mapper>
