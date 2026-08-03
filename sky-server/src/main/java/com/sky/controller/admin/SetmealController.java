@@ -103,6 +103,7 @@ public class SetmealController {
     public Result startOrStop(@PathVariable Integer status, Long id) {
         log.info("套餐起售停售:{},{}", status, id);
         // TODO 调用Service执行起售停售（起售需校验套餐内菜品均为启售状态）
+        setmealService.startOrStop(status, id);
         return Result.success();
     }
 }

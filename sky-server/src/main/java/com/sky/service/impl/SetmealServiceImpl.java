@@ -6,6 +6,8 @@ import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
+import com.sky.exception.SetmealEnableFailedException;
+import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetmealDishMapper;
 import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
@@ -27,6 +29,8 @@ public class SetmealServiceImpl implements SetmealService {
 
     @Autowired
     private SetmealDishMapper setmealDishMapper;
+    @Autowired
+    private DishMapper dishMapper;
 
     /**
      * 新增套餐及套餐菜品关系
@@ -107,7 +111,19 @@ public class SetmealServiceImpl implements SetmealService {
      */
     @Override
     public void startOrStop(Integer status, Long id) {
-        // TODO 1.若为起售(status=1)，校验套餐内菜品是否全部处于启售状态，否则抛出SetmealEnableFailedException(SETMEAL_ENABLE_FAILED)
+        // TODO 1.若为起售(status=1)，校验套餐内菜品是否全部处于启售状态，否则抛出SetmealEnableFailedException
+        if(status == 1){
+            List<Long> dishIds = setmealDishMapper.getDishIdsBySetmealId(id);
+            for(Long dishId : dishIds){
+                if(dishMapper.getById(dishId).getStatus() != 1){
+                    throw new SetmealEnableFailedException();
+                }
+            }
+        }
         // TODO 2.setmealMapper.update修改套餐状态
+        Setmeal setmeal = new Setmeal();
+        setmeal.setStatus(status);
+        setmeal.setId(id);
+        setmealMapper.update(setmeal);
     }
 }
