@@ -36,11 +36,13 @@
         where id = #{id}
     </update>
 
-    <!-- TODO 批量删除套餐 -->
-    <!--
+    <!-- 批量删除套餐 -->
     <delete id="deleteByIds">
+        delete from setmeal where id in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </delete>
-    -->
 
     <!-- 套餐分页查询（联表category获取categoryName） -->
     <select id="pageQuery" resultType="com.sky.vo.SetmealVO">

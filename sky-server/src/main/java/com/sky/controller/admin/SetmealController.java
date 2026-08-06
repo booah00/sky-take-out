@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 套餐管理
@@ -62,7 +63,8 @@ public class SetmealController {
     @ApiOperation("套餐批量删除")
     public Result delete(@RequestParam List<Long> ids) {
         log.info("套餐批量删除:{}", ids);
-        // TODO 调用Service批量删除套餐及关联关系
+        // 调用Service批量删除套餐及关联关系
+        setmealService.deleteBatch(ids);
         return Result.success();
     }
 
@@ -75,8 +77,9 @@ public class SetmealController {
     @ApiOperation("根据id查询套餐")
     public Result<SetmealVO> getById(@PathVariable Long id) {
         log.info("根据id查询套餐:{}", id);
-        // TODO 调用Service查询套餐及关联菜品
-        return null;
+        // 调用Service查询套餐及关联菜品
+        SetmealVO setmealVO = setmealService.getByIdWithDish(id);
+        return Result.success(setmealVO);
     }
 
     /**
@@ -88,7 +91,8 @@ public class SetmealController {
     @ApiOperation("修改套餐")
     public Result update(@RequestBody SetmealDTO setmealDTO) {
         log.info("修改套餐:{}", setmealDTO);
-        // TODO 调用Service修改套餐及套餐菜品关系
+        // 调用Service修改套餐及套餐菜品关系
+        setmealService.updateWithDish(setmealDTO);
         return Result.success();
     }
 
@@ -102,7 +106,7 @@ public class SetmealController {
     @ApiOperation("套餐起售停售")
     public Result startOrStop(@PathVariable Integer status, Long id) {
         log.info("套餐起售停售:{},{}", status, id);
-        // TODO 调用Service执行起售停售（起售需校验套餐内菜品均为启售状态）
+        //调用Service执行起售停售（起售需校验套餐内菜品均为启售状态）
         setmealService.startOrStop(status, id);
         return Result.success();
     }
