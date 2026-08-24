@@ -94,4 +94,26 @@ public class ShopppingCartServiceImpl implements ShoppingCartService {
         Long userId = BaseContext.getCurrentId();
         shoppingCartMapper.deleteByUserId(userId);
     }
+
+    @Override
+    public void delete(ShoppingCartDTO shoppingCartDTO) {
+        Long userId = BaseContext.getCurrentId();
+        ShoppingCart shoppingCart = ShoppingCart.builder()
+                .userId(userId)
+                .dishId(shoppingCartDTO.getDishId())
+                .setmealId(shoppingCartDTO.getSetmealId())
+                .dishFlavor(shoppingCartDTO.getDishFlavor())
+                .build();
+        List<ShoppingCart> list = shoppingCartMapper.list(shoppingCart);
+
+        if(list != null && list.size() > 0){
+            //如果商品只剩一件
+            if(list.get(0).getNumber() == 1){
+                shoppingCartMapper.delete(shoppingCart);
+            }else{
+                list.get(0).setNumber(list.get(0).getNumber() - 1);
+                shoppingCartMapper.updateNumberById(list.get(0));
+            }
+        }
+    }
 }
