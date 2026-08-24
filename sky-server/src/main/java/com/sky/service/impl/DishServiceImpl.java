@@ -122,7 +122,7 @@ public class DishServiceImpl implements DishService {
 
     @Override
     public List<Dish> list(Long categoryId) {
-        List<Dish> list = dishMapper.list(categoryId);
+        List<Dish> list = dishMapper.listByCategoryId(categoryId);
         return list;
     }
 
@@ -168,7 +168,7 @@ public class DishServiceImpl implements DishService {
      * @return
      */
     public List<DishVO> listWithFlavor(Dish dish) {
-        List<Dish> dishList = dishMapper.list(dish.getCategoryId());
+        List<Dish> dishList = dishMapper.list(dish.getCategoryId(), dish.getStatus());
 
         List<DishVO> dishVOList = new ArrayList<>();
 

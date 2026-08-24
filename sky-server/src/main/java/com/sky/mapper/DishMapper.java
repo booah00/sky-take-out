@@ -61,11 +61,20 @@ public interface DishMapper {
     void update(Dish dish);
 
     /**
-     * 根据分类id查询菜品
+     * 根据分类id查询菜品（B端：查询分类下全部菜品，含停售）
      * @param categoryId
      * @return
      */
     @Select("select * from dish where category_id = #{categoryId}")
-    List<Dish> list(Long categoryId);
+    List<Dish> listByCategoryId(Long categoryId);
+
+    /**
+     * 根据分类id和状态查询菜品（C端：只查询起售中的菜品）
+     * @param categoryId
+     * @param status
+     * @return
+     */
+    @Select("select * from dish where category_id = #{categoryId} and status = #{status}")
+    List<Dish> list(Long categoryId, Integer status);
 
 }
