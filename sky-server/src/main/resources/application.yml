@@ -35,6 +35,12 @@ logging:
         controller: info
 
 sky:
+  shop:
+    # 商家门店地址（day09 配送范围校验用，5公里内可配送）
+    address: 北京市海淀区上地十街10号
+  baidu-map:
+    # 百度地图开放平台申请的 AK（https://lbsyun.baidu.com/ 注册后创建"服务端"应用）
+    ak: 你的AK
   jwt:
     # 设置jwt签名加密时使用的秘钥
     admin-secret-key: itcast
