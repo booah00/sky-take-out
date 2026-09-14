@@ -28,7 +28,6 @@ public interface OrderMapper {
     /**
      * 用户端历史订单分页查询（动态SQL）
      * 查询条件：userId（必填）、status（可空）
-     * TODO：在 OrderMapper.xml 中编写对应 <select>，注意用 <where> 处理动态条件
      * @param ordersPageQueryDTO
      * @return
      */
@@ -37,7 +36,6 @@ public interface OrderMapper {
     /**
      * 管理端订单搜索分页查询（动态SQL）
      * 查询条件：number、phone、status、beginTime、endTime（均可空）
-     * TODO：在 OrderMapper.xml 中编写对应 <select>
      * @param ordersPageQueryDTO
      * @return
      */
@@ -56,12 +54,10 @@ public interface OrderMapper {
 
     /**
      * 根据状态统计订单数量
-     * TODO：实现方式二选一
-     *  1. 加 @Select("select count(*) from orders where status = #{status}") 注解
-     *  2. 在 OrderMapper.xml 中编写 <select id="countByStatus">
      * @param status 订单状态
      * @return
      */
+    @Select("select count(*) from orders where status = #{status}")
     Integer countByStatus(Integer status);
 
 }

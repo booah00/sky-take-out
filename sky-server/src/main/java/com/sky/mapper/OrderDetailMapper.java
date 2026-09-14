@@ -11,7 +11,6 @@ public interface OrderDetailMapper {
 
     /**
      * 根据订单id查询订单明细
-     * TODO：在 OrderDetailMapper.xml 中编写对应 <select>
      * @param orderId 订单id
      * @return 订单明细列表
      */
