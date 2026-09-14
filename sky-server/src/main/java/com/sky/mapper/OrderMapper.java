@@ -43,7 +43,7 @@ public interface OrderMapper {
 
     /**
      * 根据id查询订单
-     * TODO：实现方式二选一
+     *  实现方式二选一
      *  1. 加 @Select("select * from orders where id = #{id}") 注解
      *  2. 在 OrderMapper.xml 中编写 <select id="getById">
      * @param id
