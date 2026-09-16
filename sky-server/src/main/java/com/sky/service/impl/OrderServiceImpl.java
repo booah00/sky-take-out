@@ -207,7 +207,7 @@ public class OrderServiceImpl implements OrderService {
 
         //通过Websocket推送消息 type orderId content
         Map map = new HashMap();
-        map.put("type", 1);
+        map.put("type", 1);//1.来单提醒 2.催单
         map.put("orderId", ordersDB.getId());
         map.put("content", "订单号" + outTradeNo);
 
@@ -322,10 +322,19 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public void reminder(Long id) {
-        //TODO 催单实现思路：
+
         // 1. 根据 id 查询订单，校验订单存在
-        // 2. 本阶段最简单实现：log.info("用户催单，订单id：{}", id) 后直接返回即可
-        // 3. 进阶实现：通过 WebSocket 向管理端推送催单消息（后续课程会讲，本阶段可不做）
+        Orders orders = getOrderOrThrow(id);
+
+        // 2. 通过 WebSocket 向管理端推送催单消息
+        Map map = new HashMap();
+        map.put("type", 2);//1.来单提醒 2.催单
+        map.put("orderId", orders.getId());
+        map.put("content", "订单号" + orders.getNumber());
+
+        String json = JSONObject.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
+
     }
 
     // ================= 管理端：订单管理模块（day09 新功能） =================

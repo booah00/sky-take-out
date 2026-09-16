@@ -110,7 +110,7 @@ public class OrderController {
     }
 
     /**
-     * 催单（day09 新功能，提醒商家尽快接单/制作）
+     * 催单
      *
      * @param id 订单id
      * @return
