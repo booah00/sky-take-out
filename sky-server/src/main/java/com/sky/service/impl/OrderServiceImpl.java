@@ -25,6 +25,7 @@ import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import com.sky.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,9 @@ import springfox.documentation.swagger.readers.operation.OpenApiResponseReader;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -66,6 +69,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private ShopAddressProperties shopAddressProperties;
+
+    @Autowired
+    private WebSocketServer webSocketServer;
 
     /**
      * 用户下单
@@ -198,6 +204,15 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         orderMapper.update(orders);
+
+        //通过Websocket推送消息 type orderId content
+        Map map = new HashMap();
+        map.put("type", 1);
+        map.put("orderId", ordersDB.getId());
+        map.put("content", "订单号" + outTradeNo);
+
+        String json = JSONObject.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
     }
 
     // ================= 用户端：历史订单模块（day09 新功能） =================
@@ -263,7 +278,7 @@ public class OrderServiceImpl implements OrderService {
         // 1. 查询订单，查不到抛 OrderBusinessException(MessageConstant.ORDER_NOT_FOUND)
         Orders order = getOrderOrThrow(id);
         // 2. 校验状态：仅 待付款(1)/待接单(2) 可以取消，其他状态抛 OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR)
-        if(order.getStatus() != Orders.PENDING_PAYMENT && order.getStatus() != Orders.TO_BE_CONFIRMED){
+        if (order.getStatus() != Orders.PENDING_PAYMENT && order.getStatus() != Orders.TO_BE_CONFIRMED) {
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
         // 3. 若已支付(payStatus=1)，真实项目需调用微信退款接口（个人项目可跳过）
@@ -371,7 +386,7 @@ public class OrderServiceImpl implements OrderService {
         // 1. 查询订单，校验存在
         Orders order = getOrderOrThrow(ordersConfirmDTO.getId());
         // 2. 校验订单状态必须为 待接单(2)，否则抛 OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR)
-        if(order.getStatus() != Orders.TO_BE_CONFIRMED){
+        if (order.getStatus() != Orders.TO_BE_CONFIRMED) {
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
         // 3. 构建 Orders：id、status=CONFIRMED(3)，调用 orderMapper.update(orders)
@@ -389,7 +404,7 @@ public class OrderServiceImpl implements OrderService {
         // 1. 查询订单，校验存在
         Orders order = getOrderOrThrow(ordersRejectionDTO.getId());
         // 2. 校验订单状态为 待接单(2)
-        if(order.getStatus() != Orders.TO_BE_CONFIRMED){
+        if (order.getStatus() != Orders.TO_BE_CONFIRMED) {
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
         // 3. 若已支付需退款（个人项目可跳过）
@@ -424,7 +439,7 @@ public class OrderServiceImpl implements OrderService {
         // 1. 查询订单，校验存在
         Orders order = getOrderOrThrow(id);
         // 2. 校验订单状态为 已接单(3)
-        if(order.getStatus() != Orders.CONFIRMED){
+        if (order.getStatus() != Orders.CONFIRMED) {
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
         // 3. 构建 Orders：status=DELIVERY_IN_PROGRESS(4)，调用 orderMapper.update(orders)
@@ -443,7 +458,7 @@ public class OrderServiceImpl implements OrderService {
         // 1. 查询订单，校验存在
         Orders order = getOrderOrThrow(id);
         // 2. 校验订单状态为 派送中(4)
-        if(order.getStatus() != Orders.DELIVERY_IN_PROGRESS){
+        if (order.getStatus() != Orders.DELIVERY_IN_PROGRESS) {
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
         // 3. 构建 Orders：status=COMPLETED(5)、deliveryTime=now，调用 orderMapper.update(orders)
