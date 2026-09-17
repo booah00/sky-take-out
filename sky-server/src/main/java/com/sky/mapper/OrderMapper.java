@@ -7,7 +7,9 @@ import com.sky.vo.OrderVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 @Mapper
@@ -17,6 +19,7 @@ public interface OrderMapper {
 
     /**
      * 根据订单号查询订单
+     *
      * @param orderNumber
      */
     @Select("select * from orders where number = #{orderNumber}")
@@ -24,6 +27,7 @@ public interface OrderMapper {
 
     /**
      * 修改订单信息
+     *
      * @param orders
      */
     void update(Orders orders);
@@ -31,6 +35,7 @@ public interface OrderMapper {
     /**
      * 用户端历史订单分页查询（动态SQL）
      * 查询条件：userId（必填）、status（可空）
+     *
      * @param ordersPageQueryDTO
      * @return
      */
@@ -39,6 +44,7 @@ public interface OrderMapper {
     /**
      * 管理端订单搜索分页查询（动态SQL）
      * 查询条件：number、phone、status、beginTime、endTime（均可空）
+     *
      * @param ordersPageQueryDTO
      * @return
      */
@@ -46,9 +52,10 @@ public interface OrderMapper {
 
     /**
      * 根据id查询订单
-     *  实现方式二选一
-     *  1. 加 @Select("select * from orders where id = #{id}") 注解
-     *  2. 在 OrderMapper.xml 中编写 <select id="getById">
+     * 实现方式二选一
+     * 1. 加 @Select("select * from orders where id = #{id}") 注解
+     * 2. 在 OrderMapper.xml 中编写 <select id="getById">
+     *
      * @param id
      * @return
      */
@@ -57,6 +64,7 @@ public interface OrderMapper {
 
     /**
      * 根据状态统计订单数量
+     *
      * @param status 订单状态
      * @return
      */
@@ -65,9 +73,19 @@ public interface OrderMapper {
 
     /**
      * 根据状态和订单时间查询订单
+     *
      * @param status
      * @param orderTime
      */
     @Select("select * from orders where status = #{status} and order_time < #{orderTime}")
     List<Orders> getByStatusAndOrderTimeLT(Integer status, LocalDateTime orderTime);
+
+    /**
+     * 指定时间的营业额统计
+     *
+     * @param map
+     * @return
+     */
+    @Select("select sum(amount) from orders  where order_time >= #{start} and order_time < #{last} and status = #{status}")
+    Double sumByMap(HashMap<String, Object> map);
 }
