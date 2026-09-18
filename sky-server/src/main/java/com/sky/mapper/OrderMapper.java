@@ -88,4 +88,12 @@ public interface OrderMapper {
      */
     @Select("select sum(amount) from orders  where order_time >= #{start} and order_time < #{last} and status = #{status}")
     Double sumByMap(HashMap<String, Object> map);
+
+    /**
+     * 指定时间的订单数统计
+     *
+     * @param map
+     * @return
+     */
+    Integer countByMap(HashMap map);
 }
